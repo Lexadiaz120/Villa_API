@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Villa_API.Data;
 
@@ -11,9 +12,11 @@ using Villa_API.Data;
 namespace Villa_API.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230421082931_AddForeignKeyToVillaTable")]
+    partial class AddForeignKeyToVillaTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,7 +73,7 @@ namespace Villa_API.Migrations
                         {
                             Id = 1,
                             Amenity = "",
-                            CreatedDate = new DateTime(2023, 4, 21, 11, 10, 38, 794, DateTimeKind.Local).AddTicks(1846),
+                            CreatedDate = new DateTime(2023, 4, 21, 10, 29, 30, 937, DateTimeKind.Local).AddTicks(9675),
                             Details = "Lol",
                             ImageUrl = "dwadaw",
                             Name = "Royal Villa",
