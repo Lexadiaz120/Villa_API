@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -13,20 +14,24 @@ using Villa_API.Repository.IRepository;
 
 namespace Villa_API.Controllers
 {
-    [Route("api/VillanNumberAPI")]
+    [Route("api/v{version:apiVersion}/VillaNumberAPI")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     public class VillaNumberAPIController : ControllerBase
     {
         protected ApiResponse _response; 
-        private readonly IVillaNumberRepository _dbVillaNumber; 
+        private readonly IVillaNumberRepository _dbVillaNumber;
+        private readonly IVillaRepository _dbVilla; 
         private readonly IMapper _mapper; 
       
 
-        public VillaNumberAPIController(IVillaNumberRepository dbVillaNumber, IMapper mapper)
+        public VillaNumberAPIController(IVillaNumberRepository dbVillaNumber, IMapper mapper, IVillaNumberRepository villaNumberRepository)
         {
             _dbVillaNumber = dbVillaNumber; 
             _mapper = mapper;
             this._response = new();
+            _dbVillaNumber = dbVillaNumber;
        
         }
         [HttpGet]
@@ -50,6 +55,14 @@ namespace Villa_API.Controllers
 
             return _response;
         }
+        [MapToApiVersion("2.0")]
+        [HttpGet] 
+
+        public IEnumerable<string> Get()
+        {
+            return new string[] { "value1", "value2" }; 
+        }
+
         [HttpGet("{id:int}", Name = "GetVillaNumber")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -90,6 +103,13 @@ namespace Villa_API.Controllers
         {             
             try
             {
+                
+                if(await _dbVilla.GetAsync(u => u.Id == createDTO.VillaId) == null)
+                {
+                    ModelState.AddModelError("Custom Error", "Villa Id is invalid");
+                    return BadRequest(ModelState); 
+                }
+
                 if (await _dbVillaNumber.GetAsync(u => u.VillaNo == createDTO.VillaNo) != null)
                 {
                     ModelState.AddModelError("CustomError", "Villa Number already exists!");
@@ -154,10 +174,16 @@ namespace Villa_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ApiResponse>> UpdateVillaNumber(int id, [FromBody] VillaNumberUpdateDTO updateDTO)
-        {   
-
+        {
             try
             {
+
+                if (await _dbVilla.GetAsync(u => u.Id == updateDTO.VillaId) == null)
+                {
+                    ModelState.AddModelError("Custom Error", "Villa Id is invalid");
+                    return BadRequest(ModelState);
+                }
+
                 if (updateDTO == null || id != updateDTO.VillaNo)
                 {
                     return BadRequest();
